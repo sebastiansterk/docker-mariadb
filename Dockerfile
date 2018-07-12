@@ -2,9 +2,9 @@ FROM alpine:latest
 MAINTAINER Sebastian Sterk <sebastian@wiuwiu.de>
 
 RUN apk --update add --no-cache \
-mariadb \
-mariadb-client \
-pwgen
+  mariadb \
+  mariadb-client \
+  pwgen
 
 COPY run.sh /srv/run.sh
 VOLUME ["/var/lib/mysql"]
