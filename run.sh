@@ -46,7 +46,7 @@ EOF
 		fi
 	fi
 
-	/usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --datadir=/var/lib/mysql < $tf
+	/usr/bin/mysqld --user=mysql --verbose=0 --datadir=/var/lib/mysql < $tf
 	rm -f $tf
 fi
 
