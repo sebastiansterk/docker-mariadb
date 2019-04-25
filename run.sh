@@ -31,23 +31,25 @@ else
 
 	cat << EOF > $tf
 USE mysql;
-CREATE USER 'root'@'%';
-SET PASSWORD FOR 'root'@'%' = PASSWORD('$MYSQL_ROOT_PASSWORD');
-FLUSH PRIVILEGES;
+FLUSH PRIVILEGES ;
+GRANT ALL ON *.* TO 'root'@'%' identified by '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION ;
+GRANT ALL ON *.* TO 'root'@'localhost' identified by '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION ;
+SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}') ;
+DROP DATABASE IF EXISTS test ;
+FLUSH PRIVILEGES ;
 EOF
+        if [ "${MYSQL_DATABASE}" != "" ]; then
+                echo "[i] Creating database: ${MYSQL_DATABASE}"
+                echo "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` CHARACTER SET utf8 COLLATE utf8_general_ci;" >> $tf
 
-	if [ "${MYSQL_DATABASE}" != "" ]; then
-		echo "[i] Creating database: ${MYSQL_DATABASE}"
-		echo "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` CHARACTER SET utf8 COLLATE utf8_general_ci;" >> $tf
+                if [ "${MYSQL_USER}" != "" ]; then
+                        echo "[i] Creating user: ${MYSQL_USER} with password ${MYSQL_PASSWORD}"
+                        echo "GRANT ALL ON \`${MYSQL_DATABASE}\`.* to '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';" >> $tf
+                fi
+        fi
 
-		if [ "${MYSQL_USER}" != "" ]; then
-			echo "[i] Creating user: ${MYSQL_USER} with password ${MYSQL_PASSWORD}"
-			echo "GRANT ALL ON \`${MYSQL_DATABASE}\`.* to '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';" >> $tf
-		fi
-	fi
-
-	/usr/bin/mysqld --user=mysql --verbose=0 --datadir=/var/lib/mysql < $tf
-	rm -f $tf
+        /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tf
+        rm -f $tf
 fi
 
-exec /usr/bin/mysqld --user=mysql --console
+exec /usr/bin/mysqld --user=mysql --console --skip-name-resolve --skip-networking=0 
