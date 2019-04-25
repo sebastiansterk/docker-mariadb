@@ -31,12 +31,10 @@ else
 
 	cat << EOF > $tf
 USE mysql;
-FLUSH PRIVILEGES;
 CREATE USER 'root'@'%';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 UPDATE user SET password=PASSWORD("$MYSQL_ROOT_PASSWORD") WHERE user='root';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
-UPDATE user SET password=PASSWORD("") WHERE user='root' AND host='localhost';
+FLUSH PRIVILEGES;
 EOF
 
 	if [ "${MYSQL_DATABASE}" != "" ]; then
